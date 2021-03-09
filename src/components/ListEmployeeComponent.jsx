@@ -9,9 +9,17 @@ class ListEmployeeComponent extends Component {
     };
     this.addEmployee = this.addEmployee.bind(this);
     this.editEmployee = this.editEmployee.bind(this);
-    // this.deleteEmployee = this.deleteEmployee.bind(this);
+    this.deleteEmployee = this.deleteEmployee.bind(this);
   }
 
+  deleteEmployee(id) {
+    // rest api
+    EmployeeService.deleteEmployee(id).then(res => {
+      this.setState({
+        employees: this.state.employees.filter(employee => employee.id !== id),
+      });
+    });
+  }
   editEmployee(id) {
     // this.props.history.push(`/update-employee/${id}`);
     this.props.history.push(`/add-employee/${id}`);
