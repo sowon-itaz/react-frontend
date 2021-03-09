@@ -5,6 +5,7 @@ class CreateEmployeeComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      id: this.props.match.params.id, //라우터로부터 id 받아옴
       firstName: "",
       lastName: "",
       emailId: "",
@@ -12,20 +13,44 @@ class CreateEmployeeComponent extends Component {
     this.changeFirstNameHandler = this.changeFirstNameHandler.bind(this);
     this.changeLastNameHandler = this.changeLastNameHandler.bind(this);
     this.changeEmailHandler = this.changeEmailHandler.bind(this);
-    this.saveEmployee = this.saveEmployee.bind(this);
+    this.saveOrUpdateEmployee = this.saveOrUpdateEmployee.bind(this);
   }
 
-  saveEmployee = e => {
+  componentDidMount() {
+    if (this.state.id === "_add") {
+      //add인 경우
+      return;
+    } else {
+      //update인 경우
+      EmployeeService.getEmployeeById(this.state.id).then(res => {
+        let employee = res.data;
+        this.setState({
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          emailId: employee.emailId,
+        });
+      });
+    }
+  }
+
+  saveOrUpdateEmployee = e => {
     e.preventDefault();
     let employee = {
       firstName: this.state.firstName,
       lastName: this.state.lastName,
       emailId: this.state.emailId,
     };
-    console.log("employee:" + JSON.stringify(employee));
-    EmployeeService.createEmployee(employee).then(res => {
-      this.props.history.push("/employees");
-    });
+    if (this.state.id === "_add") {
+      //add인 경우
+      EmployeeService.createEmployee(employee).then(res => {
+        this.props.history.push("/employees");
+      });
+    } else {
+      //update인 경우
+      EmployeeService.updateEmployee(employee, this.state.id).then(res => {
+        this.props.history.push("/employees");
+      });
+    }
   };
 
   cancel() {
@@ -44,6 +69,16 @@ class CreateEmployeeComponent extends Component {
     this.setState({ emailId: event.target.value });
   };
 
+  //C인지 U인지에 따라서 페이지제목 바꾸기
+  getTitle() {
+    if (this.state.id === "_add") {
+      //Create인경우
+      return <h3 className="text-center">학생 정보 등록하기</h3>;
+    } else {
+      //update인 경우
+      return <h3 className="text-center">학생 정보 수정하기</h3>;
+    }
+  }
   render() {
     return (
       <div>
@@ -51,7 +86,7 @@ class CreateEmployeeComponent extends Component {
         <div className="container">
           <div className="row">
             <div className="card col-md-6 offset-md-3 offset-md-3">
-              학생 등록하기
+              {this.getTitle()}
               <div className="card-body">
                 <form>
                   <div className="form-group">
@@ -87,7 +122,7 @@ class CreateEmployeeComponent extends Component {
 
                   <button
                     className="btn btn-success"
-                    onClick={this.saveEmployee}
+                    onClick={this.saveOrUpdateEmployee}
                   >
                     Save
                   </button>

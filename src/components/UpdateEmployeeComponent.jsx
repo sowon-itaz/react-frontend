@@ -34,7 +34,7 @@ class UpdateEmployeeComponent extends Component {
       lastName: this.state.lastName,
       emailId: this.state.emailId,
     };
-    console.log("employee:" + JSON.stringify(employee));
+    //console.log("employee:" + JSON.stringify(employee));
     EmployeeService.updateEmployee(employee, this.state.id).then(res => {
       this.props.history.push("/employees");
     });
